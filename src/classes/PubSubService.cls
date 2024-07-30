@@ -2,7 +2,10 @@
  * @description A simple Pub/Sub pattern implementation
  */
 public with sharing class PubSubService {
-    private PubSubService() { }
+    private Map<String, List<IHandleMessages>> channels;
+    private PubSubService() { 
+        channels = new Map<String, List<IHandleMessages>>();
+    }
 
     /**
      * @description A singleton for service interaction.
@@ -22,19 +25,28 @@ public with sharing class PubSubService {
     /**
      * @description Subscribes a given IHandleMessages implementation to the channels it returns.
      * @param implementation An instance of IHandleMessages.
+     * @param channel The name of the channel to unsubscribe from.
      * @throws ArgumentNullException if implementation is null.
      */
-    public void subscribe(IHandleMessages implementation) {
+    public void subscribe(String channel,IHandleMessages implementation) {
         // TODO: Complete this method
+        if (!channels.containsKey(channel)) {
+            channels.put(channel, new List<IHandleMessages>());
+        }
+        channels.get(channel).add(implementation);
     }
 
     /**
      * @description Un-subscribes a given IHandleMessages implementation to the channels it returns.
      * @param implementation An instance of IHandleMessages.
+     * @param channel The name of the channel to unsubscribe from.
      * @throws ArgumentNullException if implementation is null.
      */
-    public void unsubscribe(IHandleMessages implementation) {
+    public void unsubscribe(String channel,IHandleMessages implementation) {
         // TODO: Complete this method
+        if (channels.containsKey(channel)) {
+            channels.get(channel).remove(implementation);
+        }
     }
 
     /**
@@ -45,5 +57,11 @@ public with sharing class PubSubService {
      */
     public void emit(String channel, Object data) {
         // TODO: Complete this method
+        if (channels.containsKey(channel)) {
+            List<IHandleMessages> handlers = channels.get(channel);
+            for (IHandleMessages handler : handlers) {
+                handler.handleMessage(data);
+            }
+        }
     }
 }

@@ -20,6 +20,26 @@ public with sharing class IncomingLeadHandler implements IHandleMessages {
      */
     public void handleMessage(String channel, Object data) {
         // TODO: Complete this method
+    if (channel == null) {
+            throw new ArgumentNullException('Channel cannot be null');
+        }
+
+        if (data instanceof Lead) {
+            Lead lead = (Lead) data;
+            if (isValidLead(lead)) {
+                throw new ArgumentException('Lead is missing a FirstName');
+            }
+            insert lead;
+        }
+    }
+
+     /**
+     * @description Checks if the lead is valid (i.e., has a non-null FirstName).
+     * @param lead The lead to be validated.
+     * @return Boolean indicating if the lead is valid.
+     */
+    private Boolean isValidLead(Lead lead) {
+        return lead.FirstName != null;
     }
 
     /**
@@ -28,5 +48,6 @@ public with sharing class IncomingLeadHandler implements IHandleMessages {
      */
     public List<String> getSubscribedChannels() {
         // TODO: Complete this method
+        return new List<String>{ INCOMING_LEAD_CHANNEL };
     }
 }
